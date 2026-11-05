@@ -87,8 +87,28 @@ tab1, tab2 = st.tabs(["📸 1. Aggiorna Database (OCR)", "📊 2. Analisi Dati &
 with tab1:
     st.header("Carica nuovi scontrini")
     
-    uploaded_images = st.file_uploader("Carica gli scontrini in formato immagine (.png, .jpg)", type=['png', 'jpg', 'jpeg'], accept_multiple_files=True)
-    uploaded_db = st.file_uploader("Se ne hai già uno, carica il database esistente per accodare i dati (.csv)", type=['csv'])
+    # Inizializziamo una "chiave" nella memoria di sessione per il reset
+    if "reset_key" not in st.session_state:
+        st.session_state.reset_key = 0
+        
+    # TASTO SCIACQUONE
+    if st.button("🚽 Svuota tutti i file (Sciacquone)"):
+        st.session_state.reset_key += 1 # Cambiando la chiave, l'uploader si resetta
+        st.rerun() # Forza l'aggiornamento istantaneo dell'interfaccia
+    
+    # Aggiungiamo la chiave dinamica al file_uploader
+    uploaded_images = st.file_uploader(
+        "Carica gli scontrini in formato immagine (.png, .jpg)", 
+        type=['png', 'jpg', 'jpeg'], 
+        accept_multiple_files=True,
+        key=f"uploader_immagini_{st.session_state.reset_key}" # Chiave dinamica
+    )
+    
+    uploaded_db = st.file_uploader(
+        "Se ne hai già uno, carica il database esistente per accodare i dati (.csv)", 
+        type=['csv'],
+        key=f"uploader_db_{st.session_state.reset_key}" # Chiave dinamica
+    )
     
     if st.button("Avvia Estrazione OCR"):
         if not uploaded_images:
