@@ -183,8 +183,13 @@ with tab2:
                 pattern = '|'.join(esclusioni)
                 df = df[~df['Prodotto'].str.contains(pattern, case=False, na=False)]
 
+                # FIX AI: Rimuoviamo i valori nulli e forziamo la colonna Prodotto a essere puro Testo
+                df = df.dropna(subset=['Prodotto'])
+                df['Prodotto'] = df['Prodotto'].astype(str).str.strip()
+
                 nlp_model = load_nlp_model()
-                prodotti_unici = df['Prodotto'].dropna().unique()
+                # Assicuriamoci di passare al modello una vera e propria lista (tolist) di stringhe
+                prodotti_unici = df['Prodotto'].unique().tolist()
                 embeddings = nlp_model.encode(prodotti_unici)
 
                 clustering_model = AgglomerativeClustering(n_clusters=None, distance_threshold=1.5, linkage='ward')
